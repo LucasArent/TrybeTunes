@@ -43,3 +43,5 @@ class App extends React.Component {
   }
 }
 export default App;
+
+// ideia para o requisito 4, link para sac e comunicação tambem, para deixar implementação mais profissional

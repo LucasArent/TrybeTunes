@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import { Link } from 'react-router-dom';
 import { getUser } from '../services/userAPI';
 
 class Header extends Component {
@@ -16,12 +17,22 @@ class Header extends Component {
   render() {
     const { logUser } = this.state;
     return (
-      <header data-testid="header-component">
-        { !logUser
-        && <span>Carregando...</span>}
-        <p data-testid="header-user-name">{ logUser }</p>
+      <div className="hub">
+        <header data-testid="header-component">
+          <div className="navegation-links">
+            <div>
+              <Link data-testid="link-to-search" to="/search">seach</Link>
+              <Link data-testid="link-to-favorites" to="/favorites">favorites</Link>
+              <Link data-testid="link-to-profile" to="/profile">profile</Link>
+            </div>
+          </div>
+          <div>
+            <h2 data-testid="header-user-name">{ logUser }</h2>
+          </div>
+        </header>
+        { !logUser && <p className="loading">Carregando...</p> }
         {}
-      </header>
+      </div>
     );
   }
 }
@@ -32,7 +43,7 @@ export default Header;
 function getMsg() {
   const name = document.getElementById("name").value;
 
-  const mnsg = "Oi ${name}! Obrigado por visitar o site.";
+  const mnsg = "Oi ${name}! Obrigado por voltar ao site.";
 
   document.getElementById("mnsg").innerHTML = mnsg;
 }
