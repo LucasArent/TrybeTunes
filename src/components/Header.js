@@ -39,7 +39,7 @@ class Header extends Component {
 
 export default Header;
 
-// eu tentei implemntar o import import { Link } from 'react-router-dom'; na linha 3, mas o link pediu para que ficasse depois do  import { getUser } from '../services/userAPI';
+// eu tentei implemntar o import, import { Link } from 'react-router-dom'; na linha 3, mas o link pediu para que ficasse depois do  import { getUser } from '../services/userAPI';
 
 /* ideia de como puxar o nome para quando a pessoa voltasse ao site
 function getMsg() {
