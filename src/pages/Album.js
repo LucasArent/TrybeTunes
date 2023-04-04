@@ -28,6 +28,8 @@ class Album extends Component {
     <li key={ `${getmusic.tracks}-${home}` }>
       <p>{getmusic.trackName}</p>
       <audio controls data-testid="audio-component">
+        <source src={ getmusic.previewUrl } type="audio/mpeg" />
+        <track src={ getmusic.trackName } kind="captions" label="English" default />
         Audio
       </audio>
     </li>
