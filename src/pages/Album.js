@@ -30,7 +30,7 @@ class Album extends Component {
       <audio controls data-testid="audio-component">
         <source src={ getmusic.previewUrl } type="audio/mpeg" />
         <track src={ getmusic.trackName } kind="captions" label="English" default />
-        Audio
+        Audio.
       </audio>
     </li>
   ));
