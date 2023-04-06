@@ -41,7 +41,7 @@ class Album extends React.Component {
           <p data-testid="album-name">{tagId}</p>
           <p data-testid="artist-name">{artistName}</p>
           <p>{load ? <p><strong>Carregando...</strong></p> : opAudio}</p>
-          <li> music1 </li> 
+          <li> music1 </li>
           <li> music2 </li>
           <li> music3 </li>
         </label>
