@@ -1,61 +1,62 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import Header from '../components/Header';
-import musicsAPI from '../services/musicsAPI';
+import getMusics from '../services/musicsAPI';
+import MusicCard from '../components/MusicCard';
 
-class Album extends Component {
+class Album extends React.Component {
   state = {
-    openMusic: [],
-    album: '',
+    audios: [],
     artistName: '',
+    load: false,
+    tagId: '',
   };
 
   async componentDidMount() {
     const { match } = this.props;
     const { id } = match.params;
-    const openMusic = await musicsAPI(id);
-
-    const [benningMusic, ...otherMusic] = openMusic;
-
+    const trackMusic = await getMusics(id); // import da api
+    const tagMusic = trackMusic.slice(1);
     this.setState({
-      openMusic: [...otherMusic],
-      album: benningMusic.collectionName,
-      artistName: benningMusic.artistName,
+      audios: tagMusic,
+      tagId: trackMusic[0].collectionName,
+      artistName: trackMusic[0].artistName,
     });
   }
 
-  listMusicas = (openmusic) => openmusic.map((getmusic, home) => (
-    <li key={ `${getmusic.tracks}-${home}` }>
-      <p>{getmusic.trackName}</p>
-      <audio controls data-testid="audio-component">
-        <source src={ getmusic.previewUrl } type="audio/mpeg" />
-        <track src={ getmusic.trackName } kind="captions" label="English" default />
-        Audio.
-      </audio>
-    </li>
-  ));
-
   render() {
-    const { openMusic,
-      album,
-      artistName } = this.state;
+    const { audios, tagId, artistName, load } = this.state;
+    const opAudio = audios.length > 0
+      && audios.map((music) => (
+        <MusicCard
+          key={ music.trackId }
+          trackName={ music.trackName }
+          trackId={ music.trackId }
+        />
+      ));
     return (
       <div data-testid="page-album">
         <Header />
-        <p data-testid="artist-name">{artistName}</p>
-        <p data-testid="album-name">{album}</p>
-        <li>{this.listMusicas(openMusic)}</li>
+        <label id="album-page">
+          <p data-testid="album-name">{tagId}</p>
+          <p data-testid="artist-name">{artistName}</p>
+          <p>{load ? <p><strong>Carregando...</strong></p> : opAudio}</p>
+          <li> music1 </li> 
+          <li> music2 </li>
+          <li> music3 </li>
+        </label>
       </div>
     );
   }
 }
-
 Album.propTypes = {
   match: PropTypes.shape({
     params: PropTypes.shape({
-      id: PropTypes.string.isRequired,
-    }).isRequired,
-  }).isRequired,
-};
+      id: PropTypes.string,
+    }),
+  }),
+}.isRequired;
 
 export default Album;
+
+// lista para criar squares pras capas e afins mais bonitos

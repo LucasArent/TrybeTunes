@@ -1,112 +1,92 @@
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import React from 'react';
+import About from '../components/About';
 import Header from '../components/Header';
 import searchAlbumsAPI from '../services/searchAlbumsAPI';
 
-class Search extends Component {
+class Search extends React.Component {
   state = {
-    tileArtistic: '',
+    Offbt: true,
+    moreAlbuns: [],
     isLoading: false,
-    albums: [],
-    error: null,
+    titleArtists: '',
   };
 
-  handleChange = (event) => {
-    this.setState({
-      tileArtistic: event.target.value,
-    });
-  };
-
-  handleSubmit = async (event) => {
-    event.preventDefault();
-
-    const { tileArtistic } = this.state;
-
-    try {
-      this.setState({ isLoading: true });
-
-      const albums = await searchAlbumsAPI(tileArtistic);
-
-      this.setState({
-        albums,
-        isLoading: false,
-        error: null,
-      });
-    } catch (error) {
-      this.setState({
-        isLoading: false,
-        error: error.message,
-      });
-    }
-  };
-
-  renderAlbums = () => {
-    const { albums } = this.state;
-
-    if (albums.length === 0) {
-      return <p>Nenhum álbum foi encontrado</p>;
-    }
-
-    return (
-      <div>
-        {albums.map((album) => (
-          <div key={ album.collectionId }>
-            <img src={ album.artworkUrl100 } alt={ album.collectionName } />
-            <h2>{album.collectionName}</h2>
-            <p>{album.artistName}</p>
-            <Link
-              to={ `/album/${album.collectionId}` }
-              data-testid={ `link-to-album-${album.collectionId}` }
-            >
-              Ver detalhes
-            </Link>
-          </div>
-        ))}
-      </div>
+  changeInput = ({ target }) => {
+    const { id, value } = target;
+    const response = target.type === 'checkbox' ? target.checked : value;
+    this.setState(
+      {
+        [id]: response,
+      },
+      this.verify,
     );
   };
 
-  render() {
-    const { tileArtistic, isLoading, error } = this.state;
-    const disabledButton = tileArtistic.length < 2; // verificar se tem 2 ou mais caracteres
+  searchAlbum = async (event) => {
+    event.preventDefault();
+    const { input } = this.state;
+    this.setState({ isLoading: true });
+    const findAlbum = await searchAlbumsAPI(input); // import da api
+    this.setState({
+      input: '',
+      Offbt: true,
+      isLoading: false,
+      moreAlbuns: [...findAlbum],
+      titleArtists: input,
+    });
+    this.setState({ isLoading: false });
+  };
 
+  verify = () => {
+    const { input } = this.state;
+    const checkText = input.length < 2;
+    const isDisable = !!checkText;
+    this.setState({ Offbt: isDisable });
+  };
+
+  render() {
+    const { Offbt, isLoading, moreAlbuns, titleArtists } = this.state;
     return (
       <div data-testid="page-search">
-        <Header />
-        <form onSubmit={ this.handleSubmit }>
-          <label htmlFor="search-artist-input">Pesquisar</label>
-          <input
-            type="text"
-            id="search-artist-input"
-            name="search-artist-input"
-            data-testid="search-artist-input"
-            value={ tileArtistic }
-            onChange={ this.handleChange }
-          />
-          <button
-            id="findArt"
-            type="submit"
-            data-testid="search-artist-button"
-            disabled={ disabledButton }
-          >
-            Pesquisar
-          </button>
-        </form>
-
-        {isLoading && <p>Carregando...</p>}
-
-        {error && <p>Ocorreu um erro ao buscar os álbuns. Por favor, tente novamente.</p>}
-
-        {!isLoading && !error && (
+        {isLoading ? (
+          <h1>Carregando...</h1>
+        ) : (
           <div>
-            {tileArtistic && (
-              <p>
-                Resultado de álbuns de:
-                {' '}
-                {tileArtistic}
-              </p>
-            )}
-            {this.renderAlbums()}
+            <Header />
+            <form onSubmit={ this.searchAlbum }>
+              <input
+                data-testid="search-artist-input"
+                type="text"
+                id="input"
+                onChange={ this.changeInput }
+                placeholder="Digite o nome do artista"
+              />
+              <button
+                data-testid="search-artist-button"
+                className="tryButton" // ia colocar uma cor nele pra testar mas já está funcionando
+                id="artist-button"
+                disabled={ Offbt }
+                type="submit"
+              >
+                Pesquisar
+              </button>
+            </form>
+            <p>{`Resultado de álbuns de: ${titleArtists}`}</p>
+            <div>
+              {moreAlbuns.length > 0 ? (
+                moreAlbuns.map((album, index) => (
+                  <About
+                    key={ index }
+                    artistName={ album.artistName }
+                    tagId={ album.collectionName }
+                    collectionId={ album.collectionId }
+                    checked={ album.checked }
+                  />
+                ))
+              ) : (
+                <p>Nenhum álbum foi encontrado</p>
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -115,3 +95,9 @@ class Search extends Component {
 }
 
 export default Search;
+
+/* por algum motivo, eu sofri MUITO com o u2, linha 62, com o nome pro resultados dos albuns,
+usando o metodo constructor, não ia, de jeito nenhum, passava no avaiador mas no lint de jeito nenhum, enfim, assim:
+
+<p>{`Resultado de álbuns de: ${titleArtistic}`}</p>  PASSA
+<p>Resultado de álbuns de: ${titleArtistic}</p>      NÃO PASSA */
