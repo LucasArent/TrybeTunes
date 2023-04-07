@@ -23,7 +23,7 @@ class App extends React.Component {
     const { Log } = this.state;
     return (
       <p id="Routes">
-        <h1>TrybeTunes</h1>
+        <h1 className="title-change-css">TrybeTunes</h1>
         <Switch>
           <Route exact path="/">
             {' '}

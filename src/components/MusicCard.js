@@ -1,55 +1,67 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { addSong, getFavoriteSongs } from '../services/favoriteSongsAPI';
+import { addSong, removeSong /* getFavoriteSongs */ } from '../services/favoriteSongsAPI';
 
 class MusicCard extends Component {
   state = {
-    checked: false,
-    favoritePlaylist: [],
     load: false,
+    checked: false,
+    // favAudios: [],
   };
 
   async componentDidMount() {
-    this.setState({ load: true });
-    const favoritePlaylist = await getFavoriteSongs();
-    this.setState({ load: false, favoritePlaylist }, () => {
-      this.fav();
+    const { verify } = this.props;
+    this.setState({
+      checked: verify,
+      // favAudios: await getFavoriteSongs(),
     });
   }
 
-  async newInput({ target }) { // usando componentDidMount simplesmente não via se existia um checkbox para cada musica
-    const { audio } = this.props;
-    const verify = target.checked;
-    this.setState({ load: true });
-    if (verify) {
-      await addSong(audio); // import da api
-    } this.setState({
-      checked: verify, load: false });
-  }
-
-  fav() {
-    const { favoritePlaylist } = this.state;
-    const { trackId } = this.props;
-    const favorite = favoritePlaylist.some(
-      (favAlbum) => favAlbum.trackId === trackId,
+  newInput = async ({ target }) => {
+    const checking = target.checked;
+    this.setState(
+      { checked: checking },
+      await this.addSong(),
+      // await this.addOrRemoveSong(),
     );
-    this.setState({ checked: favorite });
-  }
+  };
+
+  addSong = async () => {
+    const { checked } = this.state;
+    const { trackId } = this.props;
+    this.setState({ load: true });
+    await (checked ? removeSong(trackId) : addSong(trackId));
+    // const favAudios = await getFavoriteSongs();
+    this.setState({ load: false });
+  };
 
   render() {
     const { trackName, trackId } = this.props; // objetos recebidos pela API, trackId
     const { checked, load } = this.state;
+    // const isFavorite = favAudios.some((song) => song.trackId === trackId);
+    const musicList = [
+      { id: 1, name: 'music1' },
+      { id: 2, name: 'music2' },
+      { id: 3, name: 'music3' },
+    ];
     return (
       <section>
-        {load ? (
-          <p><strong>Carregando...</strong></p>
-        ) : (
+        {load ? <p><strong>Carregando...</strong></p> : (
           <div>
             <p>{ trackName }</p>
-            <audio data-testid="audio-component" controls key={ trackId }>
+            <ul>
+              {musicList.map((audio) => (
+                <li key={ audio.id } id="squares">{audio.name}</li>
+              ))}
+            </ul>
+            <audio
+              data-testid="audio-component"
+              controls
+              key={ trackId }
+            >
               <track kind="captions" />
               O seu navegador não suporta o elemento
-              <code>music</code>
+              <code>audio</code>
             </audio>
             Favorita
             <input
@@ -57,8 +69,8 @@ class MusicCard extends Component {
               id="label"
               className="checkbox-music"
               data-testid={ `checkbox-music-${trackId}` }
-              onChange={ this.newInput.bind(this) }
-              checked={ checked }
+              onChange={ this.newInput }
+              checked={ checked /* || isFavorite */ }
             />
           </div>
         )}
@@ -68,9 +80,11 @@ class MusicCard extends Component {
 }
 
 MusicCard.propTypes = {
+  verify: PropTypes.bool,
   trackName: PropTypes.string,
-  previewUrl: PropTypes.string,
   trackId: PropTypes.number,
 }.isRequired;
 
 export default MusicCard;
+
+// lista para criar squares pras capas e afins mais bonitos
